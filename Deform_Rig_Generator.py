@@ -49,7 +49,8 @@ def get_included_parent(bone, edit_bones, extract_collection_bones, base_bone_na
 
         deform_parent = edit_bones.get("DEF-" + raw_name)
         if deform_parent and deform_parent.name != base_bone_name:
-            return deform_parent
+            if parent.use_deform or deform_chain_parent.name in extract_collection_bones:
+                return deform_parent
         
         if raw_name.endswith(".L"):
             side_suffix = ".L"
@@ -61,7 +62,8 @@ def get_included_parent(bone, edit_bones, extract_collection_bones, base_bone_na
         limb_raw_name = raw_name.removesuffix(side_suffix)
         deform_chain_parent = edit_bones.get("DEF-" + limb_raw_name + "_1" + side_suffix)
         if deform_chain_parent and deform_chain_parent.name != base_bone_name:
-            return deform_chain_parent
+            if parent.use_deform or deform_chain_parent.name in extract_collection_bones:
+                return deform_chain_parent
 
     return get_included_parent(parent, edit_bones, extract_collection_bones, base_bone_name)
 
