@@ -62,7 +62,7 @@ def get_included_parent(bone, edit_bones, extract_collection_bones, base_bone_na
         chain_raw_name = raw_name.removesuffix(side_suffix)
         deform_chain_parent = edit_bones.get("DEF-" + chain_raw_name + "_1" + side_suffix)
         if deform_chain_parent and deform_chain_parent.name != base_bone_name:
-            if parent.use_deform or deform_chain_parent.name in extract_collection_bones:
+            if deform_chain_parent.use_deform or deform_chain_parent.name in extract_collection_bones:
                 return deform_chain_parent
 
     return get_included_parent(parent, edit_bones, extract_collection_bones, base_bone_name)
