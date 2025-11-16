@@ -45,7 +45,7 @@ def get_included_parent(bone, edit_bones, extract_collection_bones, base_bone_na
         return parent
 
     raw_name = get_raw_name(parent.name)
-    if raw_name != base_bone_name:
+    if raw_name != get_raw_name(base_bone_name):
 
         deform_parent = edit_bones.get("DEF-" + raw_name)
         if deform_parent and deform_parent.name != base_bone_name:
@@ -59,8 +59,8 @@ def get_included_parent(bone, edit_bones, extract_collection_bones, base_bone_na
         else: 
             side_suffix = ""
 
-        limb_raw_name = raw_name.removesuffix(side_suffix)
-        deform_chain_parent = edit_bones.get("DEF-" + limb_raw_name + "_1" + side_suffix)
+        chain_raw_name = raw_name.removesuffix(side_suffix)
+        deform_chain_parent = edit_bones.get("DEF-" + chain_raw_name + "_1" + side_suffix)
         if deform_chain_parent and deform_chain_parent.name != base_bone_name:
             if deform_chain_parent.use_deform or deform_chain_parent.name in extract_collection_bones:
                 return deform_chain_parent
@@ -460,9 +460,8 @@ class GRT_Generate_Game_Rig(bpy.types.Operator):
                 if self.Rigify_Hierarchy_Fix:
                     for bone in Edit_Bones:
                         if bone.use_deform or bone.name in extract_collection_bones:
-                            if bone.parent:
-                                parent_bone = get_included_parent(bone, Edit_Bones, extract_collection_bones)
-                                bone.parent = parent_bone
+                            parent_bone = get_included_parent(bone, Edit_Bones, extract_collection_bones)
+                            bone.parent = parent_bone
 
                 if self.Remove_Animation_Data:
                     game_rig.animation_data_clear()
