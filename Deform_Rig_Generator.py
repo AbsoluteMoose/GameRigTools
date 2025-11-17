@@ -22,14 +22,23 @@ ENUM_Extract_Mode = [
     ("DEFORM_AND_SELECTED", "Deform and Selected", "Deform and Selected"),
 ]
 
+def remove_prefix(text, prefix):
+    if text.startswith(prefix):
+        return text[len(prefix):]
+    return text
+
+def remove_suffix(text, suffix):
+    if text.endswith(suffix):
+        return text[:-len(suffix)]
+    return text
 
 def get_raw_name(name):
-    name.removeprefix("ROOT-")
-    name.removeprefix("DEF-")
-    name.removeprefix("ORG-")
-    name.removeprefix("MCH-")
-    name.removeprefix("STR-")
-    name.removeprefix("P-")
+    name = remove_prefix(name, "ROOT-")
+    name = remove_prefix(name, "DEF-")
+    name = remove_prefix(name, "ORG-")
+    name = remove_prefix(name, "MCH-")
+    name = remove_prefix(name, "STR-")
+    name = remove_prefix(name, "P-")
     return name
 
 def get_included_parent(bone, edit_bones, extract_collection_bones, base_bone_name = ""):
@@ -44,6 +53,10 @@ def get_included_parent(bone, edit_bones, extract_collection_bones, base_bone_na
     if parent.use_deform or parent.name in extract_collection_bones:
         return parent
 
+    print("Parent Invalid for " + base_bone_name + " (not included): " + parent.name)
+    print(get_raw_name(parent.name))
+    print(get_raw_name(base_bone_name))
+
     raw_name = get_raw_name(parent.name)
     if raw_name != get_raw_name(base_bone_name):
 
@@ -52,6 +65,9 @@ def get_included_parent(bone, edit_bones, extract_collection_bones, base_bone_na
             if deform_parent.use_deform or deform_parent.name in extract_collection_bones:
                 return deform_parent
         
+        if deform_parent:
+            print("Parent Invalid " + base_bone_name + " (no DEF version): " + deform_parent.name)
+
         if raw_name.endswith(".L"):
             side_suffix = ".L"
         elif raw_name.endswith(".R"):
@@ -64,6 +80,9 @@ def get_included_parent(bone, edit_bones, extract_collection_bones, base_bone_na
         if deform_chain_parent and deform_chain_parent.name != base_bone_name:
             if deform_chain_parent.use_deform or deform_chain_parent.name in extract_collection_bones:
                 return deform_chain_parent
+
+        if deform_chain_parent:
+            print("Parent Invalid " + base_bone_name + " (no DEF..._1 version): " + deform_chain_parent.name)
 
     return get_included_parent(parent, edit_bones, extract_collection_bones, base_bone_name)
 
