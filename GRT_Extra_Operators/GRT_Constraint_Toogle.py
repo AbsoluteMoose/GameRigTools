@@ -28,7 +28,7 @@ class GRT_Constraint_Toogle(bpy.types.Operator):
 
                 for bone in Pose_Bone:
                     if self.use_selected:
-                        if bone.bone.select:
+                        if bone.select:
                             for constraint in bone.constraints:
                                 constraint.mute = self.mute
 
@@ -68,7 +68,7 @@ class GRT_Constraint_Game_Rig_Toogle(bpy.types.Operator):
 
             for bone in Pose_Bone:
                 if self.use_selected:
-                    if bone.bone.select:
+                    if bone.select:
                         for constraint in bone.constraints:
                             constraint.mute = self.mute
 

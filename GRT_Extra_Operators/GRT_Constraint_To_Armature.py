@@ -105,7 +105,7 @@ class GRT_Constraint_To_Armature(bpy.types.Operator):
 
                             for bone in Source_Armature.pose.bones:
 
-                                if bone.bone.select:
+                                if bone.select:
 
                                     if Target_Armature.data.bones.get(bone.name):
 

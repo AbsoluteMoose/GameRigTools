@@ -1,14 +1,3 @@
-bl_info = {
-    "name": "Game Rig Tools",
-    "author": "BlenderBoi, Xin",
-    "version": (4, 2, 2),
-    "blender": (4, 1, 0),
-    "description": "Generate a Deform Rig base on CGDive's Game-Ready Rig Video, if you want to contribute to Game Rig Tools, the github page is: https://github.com/BlenderBoi/Game-Rig-Tools",
-    "warning": "",
-    "doc_url": "https://cgdive.notion.site/Game-Rig-Tools-Documentation-dc61839fd1d04147a42aa89e366575fb",
-    "tracker_url": "https://support.tinkerboi.com",
-    "category": "Armature",
-}
 import bpy
 import os
 import pathlib

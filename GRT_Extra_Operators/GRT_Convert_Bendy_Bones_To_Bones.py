@@ -116,7 +116,7 @@ class GRT_Convert_Bendy_Bones_To_Bones(bpy.types.Operator):
                         if self.Scope == "SELECTED":
                             Bones = [
                                 object.data.edit_bones.get(bone.name)
-                                for bone in object.data.bones
+                                for bone in object.data.edit_bones
                                 if bone.select and object.data.edit_bones.get(bone.name)
                             ]
 

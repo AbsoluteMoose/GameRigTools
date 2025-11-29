@@ -1300,9 +1300,10 @@ class GRT_Bake_Action_Bakery(bpy.types.Operator):
                                 if Baker.offset_keyframe_to_frame_one:
                                     start_frame = int(Baked_Action[0].frame_range[0])
 
-                                    for fcurve in Baked_Action[0].fcurves:
-                                        for kp in fcurve.keyframe_points:
-                                            kp.co.x = kp.co.x - start_frame + 1
+                                    for channelbag in Baked_Action[0].layers[0].strips[0].channelbags:
+                                        for fcurve in channelbag.fcurves:
+                                            for kp in fcurve.keyframe_points:
+                                                kp.co.x = kp.co.x - start_frame + 1
 
                                 context.view_layer.update()
 

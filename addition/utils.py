@@ -107,19 +107,20 @@ def scale_objects(obs, include_nla, silent=False):
             del ob_actions_names
 
             for acc in ob_actions:
-                for fcu in acc.fcurves:
-                    if (not fcu.data_path.endswith('location')) or \
-                       (fcu.data_path == 'location') or \
-                       (len(fcu.keyframe_points) == 0):
-                        continue
+                for channelbag in acc.layers[0].strips[0].channelbags:
+                    for fcu in channelbag.fcurves:
+                        if (not fcu.data_path.endswith('location')) or \
+                           (fcu.data_path == 'location') or \
+                           (len(fcu.keyframe_points) == 0):
+                            continue
 
-                    ob_scaled_action_names.add(acc.name)
+                        ob_scaled_action_names.add(acc.name)
 
-                    scale = ob_scale[fcu.array_index]
-                    for kfp in fcu.keyframe_points:
-                        kfp.co[1] *= scale
-                        kfp.handle_left[1] *= scale
-                        kfp.handle_right[1] *= scale
+                        scale = ob_scale[fcu.array_index]
+                        for kfp in fcu.keyframe_points:
+                            kfp.co[1] *= scale
+                            kfp.handle_left[1] *= scale
+                            kfp.handle_right[1] *= scale
 
             adjust_constraints(ob, ob_scale)
 
