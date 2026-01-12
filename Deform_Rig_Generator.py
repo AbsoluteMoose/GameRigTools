@@ -41,52 +41,6 @@ def get_raw_name(name):
     name = remove_prefix(name, "P-")
     return name
 
-def get_included_parent(bone, edit_bones, extract_collection_bones, base_bone_name = ""):
-
-    parent = bone.parent
-    if not parent:
-        return None
-
-    if (base_bone_name == ""):
-        base_bone_name = bone.name
-
-    if parent.use_deform or parent.name in extract_collection_bones:
-        return parent
-
-    print("Parent Invalid for " + base_bone_name + " (not included): " + parent.name)
-    print(get_raw_name(parent.name))
-    print(get_raw_name(base_bone_name))
-
-    raw_name = get_raw_name(parent.name)
-    if raw_name != get_raw_name(base_bone_name):
-
-        deform_parent = edit_bones.get("DEF-" + raw_name)
-        if deform_parent and deform_parent.name != base_bone_name:
-            if deform_parent.use_deform or deform_parent.name in extract_collection_bones:
-                return deform_parent
-        
-        if deform_parent:
-            print("Parent Invalid " + base_bone_name + " (no DEF version): " + deform_parent.name)
-
-        if raw_name.endswith(".L"):
-            side_suffix = ".L"
-        elif raw_name.endswith(".R"):
-            side_suffix = ".R"
-        else: 
-            side_suffix = ""
-
-        chain_raw_name = raw_name.removesuffix(side_suffix)
-        deform_chain_parent = edit_bones.get("DEF-" + chain_raw_name + "_1" + side_suffix)
-        if deform_chain_parent and deform_chain_parent.name != base_bone_name:
-            if deform_chain_parent.use_deform or deform_chain_parent.name in extract_collection_bones:
-                return deform_chain_parent
-
-        if deform_chain_parent:
-            print("Parent Invalid " + base_bone_name + " (no DEF..._1 version): " + deform_chain_parent.name)
-
-    return get_included_parent(parent, edit_bones, extract_collection_bones, base_bone_name)
-
-
 def get_root(bone):
     if bone.parent:
         return get_root(bone.parent)
@@ -401,6 +355,8 @@ class GRT_Generate_Game_Rig(bpy.types.Operator):
         control_rig = Global_Settings.Source_Armature
         deform_rig = Global_Settings.Target_Armature
 
+        source_pose_bones = control_rig.pose.bones
+
         if self.Hierarchy_Mode == "KEEP_EXISTING":
             self.Rigify_Hierarchy_Fix = False
             self.Flat_Hierarchy = False
@@ -477,9 +433,53 @@ class GRT_Generate_Game_Rig(bpy.types.Operator):
                         self.report({'WARNING'}, f"Collection {self.Extract_Collection} not found in control rig")
 
                 if self.Rigify_Hierarchy_Fix:
+
+                    def get_included_parent(bone, base_bone_name):
+
+                        parent = bone.parent
+                        if not parent:
+                            return None
+
+                        if parent.use_deform or parent.name in extract_collection_bones:
+                            return parent
+                        
+                        if parent.name.startswith("STR-P-"):
+                            str_parent_pose = source_pose_bones.get(parent.name)
+                            if str_parent_pose and str_parent_pose.name != base_bone_name:
+                                for constraint in str_parent_pose.constraints:
+                                    self.report({'INFO'}, f"Checking constraint: {constraint.type}")
+                                    if constraint.type == "ARMATURE" and len(constraint.targets) == 1:
+                                        target_bone = Edit_Bones.get(constraint.targets[0].subtarget)
+                                        if target_bone:
+                                            return get_included_parent(target_bone, base_bone_name) 
+
+                        raw_name = get_raw_name(parent.name)
+                        if raw_name != get_raw_name(base_bone_name):
+
+                            deform_parent_name = "DEF-" + raw_name
+                            deform_parent = Edit_Bones.get(deform_parent_name)
+                            if deform_parent and deform_parent.name != base_bone_name:
+                                if deform_parent.use_deform or deform_parent.name in extract_collection_bones:
+                                    return deform_parent
+                            
+                            if raw_name.endswith(".L"):
+                                side_suffix = ".L"
+                            elif raw_name.endswith(".R"):
+                                side_suffix = ".R"
+                            else: 
+                                side_suffix = ""
+
+                            chain_raw_name = raw_name.removesuffix(side_suffix)
+                            deform_chain_parent = Edit_Bones.get("DEF-" + chain_raw_name + "_1" + side_suffix)
+                            if deform_chain_parent and deform_chain_parent.name != base_bone_name:
+                                if deform_chain_parent.use_deform or deform_chain_parent.name in extract_collection_bones:
+                                    return deform_chain_parent
+
+                        return get_included_parent(parent, base_bone_name)
+
                     for bone in Edit_Bones:
                         if bone.use_deform or bone.name in extract_collection_bones:
-                            parent_bone = get_included_parent(bone, Edit_Bones, extract_collection_bones)
+                            parent_bone = get_included_parent(bone, bone.name)
                             bone.parent = parent_bone
 
                 if self.Remove_Animation_Data:
